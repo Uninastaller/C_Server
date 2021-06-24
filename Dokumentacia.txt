@@ -1,0 +1,39 @@
+
+Dokumentácia k semestrálnemu zadaniu z predmetu OSRT  - Tomáš Lizák
+
+Výpočtová úloha:
+Ako výpočtovú úlohu som si zvolil výpočet priemeru, povrchu, objemu, hmotnosti a ceny gule,
+k tomuto výpočtu sú potrebné vstupné hodnoty polomeru a materiálu z ktorého pozostáva guľa.
+
+Princíp fungovania semestrálky:
+Moja semestrálna práca obsahuje súbory server.c, clients.c, makefile a linuxový script: clearing.
+V prvom rade treba zapnúť server príkazom "./server 7777"(7777 znamená na akom porte bude server počúvať),  
+ktorý funguje na "forkovom" princípe a teda server čaká na spojenie a ak príde tak sa vytvorý nový proces,
+dieťa obsluhuje klienta a rodič čaká na dalšie spojenie, týmto spôsobom vie server prijať "neobmedzený" počet klientov.
+V druhom rade zapneme klientov príkazom: "./clients 127.0.0.1 7777",127.0.0.1 - IPv4 servera na ktorý sa budeme snažit pripojiť,
+7777 - port na servery. Po zadaní tohto príkazu sa vytvorí klient 4 a bude od nás vyžadovať vstupné hodnoty,
+tie uloží do zdieľanej pamäte. Potom sa vytvoria klienti 1,2 a 3, klient 1 si prečíta dáta zo zdieľanej pamäte a urobí polovicu výpočtu,
+uloží ju do zdieľanej pamäte a vypne sa. Klient 2 si podobným spôsobom urobí druhú polovicu výpočtu a celkový výpočet odošle na server,
+kde už bude klient 3 čakať na prevziatie výpočtu. Po prevzatí výpočtu chvíľu počká a potom vypíše výsledok.
+Všetci klienti su vypnutý, server stále beží a môže byť opätovne použitý k chodu semestrálnej práce,
+v pripade že chceme server vypnúť stlačíme ctrl+C, server za sebou vyčistí sockety a zdieľanu pamäť.
+Samozrejme aj klienti za sebou všetko vyčistia, no pre prípad fatálnej chyby ktorá by spôsobila že procesy za sebou nevyčistia,
+moje semestrálne zadanie obsahuje linuxový script s názvom clearing ktorý vyčistí nepoužívnú zdieľanú pameť, semafory a fronty správ.
+
+Obsah makefilu:
+Na začiatku máme definované:
+.PHONY: server
+.PHONY: clients
+A to z dôvodu, aby sa nam nestalo že príkaz make nám oznámi že nevykonal požadovanú akciu kvôli tomu že už je "up to date",
+to sa môže stať a aj sa mi stalo, z dôvodu že sa niekde nachádza súbor s rovnakým názvom.
+Teda .PHONY hovorí o tom, že "server" nie je reálny súbor, a teda sa budú ignorovať súbory s týmto názvom,
+ďalšie riešenie by bolo premenovať konkrétny súbor, či pravidlo v subore makefile.
+Pravidlo "server" - spustí server na porte 7777
+Pravidlo "clients" - spustí klientov a klient 2 a 3 sa budú pripájať na IPv4 - 127.0.0.1 a port 7777
+Pravidlo "clean" - vymaže skompilované súbory servera a klientov + prebehne script clearing
+Pravidlo "gcconly" - skompiluje súbory server.c a clients.c
+Pravidlo "all" - skompiluje oba súbory, zapne server na pozadí a klientov na popredí,
+pri použitý tohto pravidla si treba dať pozor na to že server ostane zapnutý na pozadí a na konci je potrebné ho ukončiť,
+napríklad spôsobom že si ho nájdeme pomocou príkazu "ps" a príkazu "kill [PID procesu]",
+alebo si ho nájdeme prikazom "jobs" a vypneme príkazom "kill %[číslo]"
+Pravidlo "dokumentácia" - zobrazí túto dokumentáciu.
